@@ -3,93 +3,114 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BTCUSDT • Bybit Perpetual</title>
+  <meta name="theme-color" content="#0b1018">
+  <title>BTCUSDT | Bybit Perpetual</title>
   <style>
-    :root { color-scheme: dark; --bg:#0b1018; --panel:#121b28; --line:#273345; --muted:#8a9aae; --text:#eef4fc; --green:#29c7a0; --red:#fa7084; --gold:#f6bd62; }
-    * { box-sizing:border-box; }
-    body { margin:0; min-height:100vh; background:radial-gradient(circle at 85% -10%,#1c2a3b 0,transparent 35%),var(--bg); color:var(--text); font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif; }
-    .wrap { width:min(1460px,calc(100% - 40px)); margin:auto; padding:30px 0 42px; }
-    header { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:25px; }
-    .brand { display:flex; align-items:center; gap:13px; }
-    .mark { display:grid; place-items:center; width:38px; height:38px; border-radius:12px; background:#202c3c; color:var(--gold); font-weight:800; font-size:18px; }
-    .brand strong { font-size:18px; letter-spacing:.2px; }
-    .brand small { display:block; color:var(--muted); font-size:12px; }
-    .live { color:var(--muted); display:flex; gap:9px; align-items:center; font-size:12px; }
-    .dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 14px var(--green); }
-    .dot.off { background:var(--red); box-shadow:none; }
-    .summary { display:flex; align-items:end; gap:25px; flex-wrap:wrap; margin:0 0 19px; }
-    .summary h1 { font-size:clamp(28px,4vw,45px); margin:0; line-height:1.1; letter-spacing:-1px; font-variant-numeric:tabular-nums; }
-    .delta { padding:5px 9px; border-radius:7px; font-weight:700; font-variant-numeric:tabular-nums; }
-    .up { color:var(--green); background:#183930; } .down { color:var(--red); background:#442630; }
-    .meta { color:var(--muted); font-size:12px; margin-left:auto; }
-    .card { background:linear-gradient(160deg,#14202d,#111925); border:1px solid var(--line); border-radius:18px; box-shadow:0 22px 55px #0004; overflow:hidden; }
-    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:18px 22px 12px; }
-    .toolbar h2 { font-size:14px; margin:0; font-weight:650; }
-    .toolbar h2 span { font-weight:400; color:var(--muted); margin-left:8px; }
-    .ranges { display:flex; gap:5px; background:#0d1520; border:1px solid var(--line); border-radius:9px; padding:3px; }
-    button { background:transparent; border:0; color:var(--muted); border-radius:6px; padding:6px 13px; cursor:pointer; font:inherit; font-weight:650; }
-    button:hover { color:var(--text); } button.active { color:var(--text); background:#293a4f; }
-    .graph { padding:0 10px 8px 10px; position:relative; }
-    canvas { width:100%; display:block; }
-    #price { height:390px; } #volume { height:112px; }
-    .hint { position:absolute; display:none; pointer-events:none; background:#1b2a3a; border:1px solid #42536a; border-radius:9px; box-shadow:0 10px 30px #0009; padding:9px 11px; min-width:170px; font-size:12px; z-index:2; font-variant-numeric:tabular-nums; }
-    .hint b { display:block; margin-bottom:5px; color:var(--gold); }
-    .hint div { display:flex; justify-content:space-between; gap:14px; }
-    .hint span:first-child { color:var(--muted); }
-    .foot { border-top:1px solid var(--line); color:var(--muted); padding:12px 22px 15px; display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap; font-size:12px; }
-    .error { color:var(--red); }
-    @media(max-width:700px) { .wrap { width:calc(100% - 20px); padding-top:16px; } .card { border-radius:12px; } #price { height:320px; } #volume { height:85px; } .meta { width:100%; margin-left:0; } }
+    :root { color-scheme:dark; --bg:#0b1018; --panel:#111a26; --line:#233142; --line2:#1a2837; --text:#eaf0f8; --muted:#8596ab; --green:#23c79a; --red:#ef6579; --amber:#eebc73; --blue:#58a9ef; }
+    * {box-sizing:border-box} body {margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif} button {font:inherit;cursor:pointer}
+    .shell {max-width:1560px;margin:auto;padding:0 26px 40px} .top {height:74px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:18px}
+    .identity {display:flex;align-items:center;gap:12px;min-width:0} .symbol {display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#f5a63d;color:#171b24;font-weight:800;font-size:20px}
+    .brand {font-weight:750;letter-spacing:.01em;font-size:16px;white-space:nowrap}.sub {color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+    .topright {display:flex;align-items:center;gap:18px;color:var(--muted);font-size:12px}.separator {height:20px;width:1px;background:var(--line)}
+    .live {display:flex;align-items:center;gap:8px}.dot {width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px #23c79a88}.dot.off {background:var(--red);box-shadow:none}.dot.delay {background:var(--amber);box-shadow:none}
+    .eyebrow {color:var(--muted);letter-spacing:.1em;font-size:11px;font-weight:700;text-transform:uppercase;margin:26px 0 5px}
+    .overview {display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap;margin-bottom:24px}.headline {display:flex;align-items:baseline;gap:13px}.headline strong {font-size:clamp(31px,4vw,47px);font-weight:640;letter-spacing:-.045em;line-height:1.1;font-variant-numeric:tabular-nums}.headline small {color:var(--muted);font-size:13px;font-weight:650}
+    .badge {font-variant-numeric:tabular-nums;border:1px solid;border-radius:6px;padding:5px 9px;font-weight:700;font-size:12px}.badge.up {color:var(--green);background:#12352d;border-color:#27634d}.badge.down {color:var(--red);background:#39202d;border-color:#6b3545}
+    .stats {display:grid;grid-template-columns:repeat(3,minmax(125px,1fr));gap:25px;margin-left:auto}.stat {border-left:1px solid var(--line);padding-left:17px}.stat span {display:block;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}.stat strong {display:block;font-size:15px;font-weight:590;letter-spacing:-.015em;font-variant-numeric:tabular-nums;margin-top:3px}
+    .panel {background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px #0003}.panelbar {min-height:66px;padding:13px 19px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+    .instrument {font-weight:700;font-size:14px}.instrument small {display:block;color:var(--muted);font-size:11px;font-weight:450;margin-top:2px}.tools {display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .segmented {display:flex;align-items:center;gap:2px;padding:3px;background:#0c1420;border:1px solid var(--line);border-radius:7px}.segmented button {border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:700;border-radius:5px;padding:6px 10px;min-width:38px}.segmented button:hover {color:var(--text)}.segmented button.active {background:#25364a;color:#f6f9fd}
+    .reset {background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:7px;padding:7px 10px;font-size:12px}.reset:hover {color:var(--text);border-color:#56718f}
+    .ohlc {min-height:38px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:9px 18px;color:var(--muted);font-size:12px;border-bottom:1px solid var(--line2);font-variant-numeric:tabular-nums}.ohlc b {color:var(--text);font-weight:550}.ohlc .change {font-weight:650}.ohlc .change.up {color:var(--green)}.ohlc .change.down {color:var(--red)}
+    .chart {position:relative;touch-action:none;cursor:crosshair;user-select:none;padding:6px 9px 0 9px}.chart.dragging {cursor:grabbing} canvas {display:block;width:100%} #price {height:440px} #volume {height:132px}
+    .tooltip {position:absolute;display:none;pointer-events:none;z-index:3;background:#182637ee;border:1px solid #43556a;box-shadow:0 16px 38px #0009;border-radius:8px;padding:10px 12px;min-width:200px;font-size:12px;font-variant-numeric:tabular-nums;backdrop-filter:blur(8px)}.tooltip h3 {margin:0 0 8px;color:var(--amber);font-size:12px;font-weight:650}.tooltip div {display:flex;justify-content:space-between;gap:18px;margin:2px 0}.tooltip span:first-child {color:var(--muted)}
+    .bottom {border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 19px;color:var(--muted);font-size:11px;flex-wrap:wrap}.key {display:flex;align-items:center;gap:15px;flex-wrap:wrap}.key i {display:inline-block;width:16px;height:2px;margin-right:5px;vertical-align:middle}.key .ema20 {background:var(--blue)}.key .ema50 {background:var(--amber)}.muted {color:var(--muted)}
+    .note {color:#6e8198;font-size:11px;margin:13px 2px 0}.error {color:var(--red)!important}
+    @media(max-width:850px) {.shell {padding:0 13px 30px}.stats {width:100%;margin:0;gap:10px}.stat:first-child {border-left:0;padding-left:0}.stat {padding-left:10px}.stat strong {font-size:13px}.overview {gap:13px}.top {height:64px}.topright .separator,.topright #utcClock {display:none}.panelbar {align-items:flex-start} #price {height:360px} #volume {height:105px}}
+    @media(max-width:480px) {.stats {grid-template-columns:repeat(3,1fr)}.stat span {font-size:9px}.stat strong {font-size:12px}.ohlc {gap:8px 13px;font-size:11px}.chart {padding:4px 3px 0} #price {height:310px} #volume {height:90px}.tools {gap:6px}.segmented button {padding:6px 7px}.brand {font-size:14px}}
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <header>
-      <div class="brand"><div class="mark">₿</div><div><strong>BTCUSDT Perpetual</strong><small>Bybit · USDT sözleşmesi · 1 dakikalık mumlar</small></div></div>
-      <div class="live"><i id="dot" class="dot"></i><span id="state">Veri yükleniyor</span></div>
+  <main class="shell">
+    <header class="top">
+      <div class="identity"><div class="symbol">₿</div><div><div class="brand">BTCUSDT <span class="muted">·</span> Perpetual</div><div class="sub">BYBIT / USDT-M / MARKET DATA</div></div></div>
+      <div class="topright"><span id="utcClock">UTC —</span><span class="separator"></span><span class="live"><i class="dot" id="dot"></i><span id="state">Bağlanıyor</span></span></div>
     </header>
-    <div class="summary"><h1 id="last">—</h1><span id="change" class="delta" hidden></span><div id="updated" class="meta">UTC · yalnızca kapanmış mumlar</div></div>
-    <section class="card">
-      <div class="toolbar"><h2>Fiyat grafiği <span>OHLC · USDT</span></h2><div class="ranges" aria-label="Grafik zaman aralığı"><button data-limit="60">1 saat</button><button data-limit="360" class="active">6 saat</button><button data-limit="1440">24 saat</button></div></div>
-      <div class="graph" id="graph"><canvas id="price" aria-label="BTCUSDT mum grafiği" role="img"></canvas><canvas id="volume" aria-label="BTC işlem hacmi" role="img"></canvas><div id="hint" class="hint"></div></div>
-      <div class="foot"><span>Yeşil: yükseliş · Kırmızı: düşüş · Alt panel: BTC hacmi</span><span id="count">Veri bekleniyor</span></div>
+    <p class="eyebrow">Son kapanış · 1 dakikalık mum</p>
+    <section class="overview" aria-label="Piyasa özeti">
+      <div class="headline"><strong id="last">—</strong><small>USDT</small></div><span id="change" class="badge" hidden></span>
+      <div class="stats"><div class="stat"><span>24s yüksek</span><strong id="high24">—</strong></div><div class="stat"><span>24s düşük</span><strong id="low24">—</strong></div><div class="stat"><span>24s hacim · BTC</span><strong id="volume24">—</strong></div></div>
     </section>
+    <section class="panel" aria-label="Fiyat ve hacim grafiği">
+      <div class="panelbar"><div class="instrument">BTCUSDT <span class="muted">·</span> 1m <small>Kapanmış mumlar · UTC</small></div>
+        <div class="tools"><div class="segmented" aria-label="Görünür aralık"><button data-count="60">1S</button><button data-count="360" class="active">6S</button><button data-count="1440">24S</button></div><button id="reset" class="reset" title="En son muma dön">Son mum ↗</button></div>
+      </div>
+      <div class="ohlc" id="ohlc" aria-live="polite"><span>İmleci grafik üzerinde gezdirerek mum ayrıntılarını inceleyin.</span></div>
+      <div class="chart" id="chart"><canvas id="price" role="img" aria-label="BTCUSDT mum ve EMA grafiği"></canvas><canvas id="volume" role="img" aria-label="BTC işlem hacmi grafiği"></canvas><div class="tooltip" id="tooltip"></div></div>
+      <div class="bottom"><div class="key"><span><i class="ema20"></i>EMA 20</span><span><i class="ema50"></i>EMA 50</span><span>Yeşil yükseliş · kırmızı düşüş</span></div><span id="count">Veriler yükleniyor</span></div>
+    </section>
+    <p class="note">Grafiği sürükleyerek geçmişe gidin, fare tekerleğiyle yakınlaştırın. Veriler 30 saniyede bir yenilenir. Yalnızca kapanmış mumlar gösterilir.</p>
   </main>
   <script>
-    const price=document.getElementById('price'), volume=document.getElementById('volume'), graph=document.getElementById('graph'), hint=document.getElementById('hint');
-    const fmt=new Intl.NumberFormat('tr-TR',{maximumFractionDigits:2,minimumFractionDigits:2});
-    const compact=new Intl.NumberFormat('tr-TR',{notation:'compact',maximumFractionDigits:1});
-    let candles=[], limit=360, busy=false, hover=-1;
-    function size(canvas) { const scale=window.devicePixelRatio||1, box=canvas.getBoundingClientRect(); canvas.width=Math.round(box.width*scale); canvas.height=Math.round(box.height*scale); const ctx=canvas.getContext('2d'); ctx.setTransform(scale,0,0,scale,0,0); return {ctx,w:box.width,h:box.height}; }
-    function line(ctx,x1,y1,x2,y2,color,width=1) { ctx.strokeStyle=color; ctx.lineWidth=width; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
-    function draw() {
-      const a=size(price), b=size(volume), ctx=a.ctx, vctx=b.ctx, w=a.w, h=a.h, vh=b.h;
-      ctx.clearRect(0,0,w,h); vctx.clearRect(0,0,w,vh);
-      const left=15,right=w<600?70:91,top=14,bottom=27, plotW=Math.max(1,w-left-right),plotH=h-top-bottom;
-      if(!candles.length) { ctx.fillStyle='#8a9aae'; ctx.font='14px system-ui'; ctx.fillText('Kayıtlı mum bekleniyor…',left+10,h/2); return; }
-      const lows=candles.map(c=>+c.low), highs=candles.map(c=>+c.high), min=Math.min(...lows), max=Math.max(...highs), padding=Math.max((max-min)*.07,1), lo=min-padding, hi=max+padding;
-      const y=p=>top+(hi-p)/(hi-lo)*plotH, step=plotW/candles.length, maxVol=Math.max(...candles.map(c=>+c.volume),1);
-      ctx.font='11px system-ui'; ctx.textAlign='left'; ctx.fillStyle='#8a9aae';
-      for(let i=0;i<=4;i++) { const yy=top+i*plotH/4; line(ctx,left,yy,w-right,yy,'#263344'); ctx.fillText(fmt.format(hi-i*(hi-lo)/4),w-right+8,yy+4); }
-      for(let i=0;i<=4;i++) { const index=Math.min(candles.length-1,Math.round(i*(candles.length-1)/4)),x=left+(index+.5)*step,t=new Date(candles[index].time); line(ctx,x,top,x,h-bottom,'#1e2938'); const label=t.toLocaleString('tr-TR',{timeZone:'UTC',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); ctx.fillText(label,Math.min(Math.max(x-22,left),w-right-48),h-7); }
-      for(let i=0;i<candles.length;i++) { const c=candles[i],x=left+(i+.5)*step,up=+c.close>=+c.open,color=up?'#29c7a0':'#fa7084',bw=Math.max(1,Math.min(step*.74,11)); line(ctx,x,y(+c.high),x,y(+c.low),color); ctx.fillStyle=color; ctx.fillRect(x-bw/2,Math.min(y(+c.open),y(+c.close)),bw,Math.max(1,Math.abs(y(+c.close)-y(+c.open)))); vctx.fillStyle=up?'#29c7a080':'#fa708480'; const bar=(+c.volume/maxVol)*(vh-25); vctx.fillRect(x-bw/2,vh-20-bar,bw,bar); }
-      vctx.fillStyle='#8a9aae'; vctx.font='11px system-ui'; vctx.fillText('HACİM · BTC',left,15); vctx.fillText(compact.format(maxVol),w-right+8,15); line(vctx,left,vh-20,w-right,vh-20,'#263344');
-      if(hover>=0 && hover<candles.length) { const x=left+(hover+.5)*step; line(ctx,x,top,x,h-bottom,'#8291a1',1); line(vctx,x,0,x,vh-20,'#8291a1',1); }
+    const $=id=>document.getElementById(id), chart=$('chart'), price=$('price'), volume=$('volume'), tooltip=$('tooltip');
+    const number=new Intl.NumberFormat('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const volumeNumber=new Intl.NumberFormat('tr-TR',{maximumFractionDigits:2});
+    const compact=new Intl.NumberFormat('tr-TR',{notation:'compact',maximumFractionDigits:2});
+    let candles=[], ema20=[], ema50=[], visibleCount=360, endIndex=0, hover=-1, busy=false, firstLoad=true, drag=null;
+    const color={green:'#23c79a',red:'#ef6579',blue:'#58a9ef',amber:'#eebc73',muted:'#8596ab',line:'#263648',grid:'#1e2c3c'};
+    function dimensions(canvas){const box=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2),ctx=canvas.getContext('2d');canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);return {ctx,w:box.width,h:box.height};}
+    function stroke(ctx,x1,y1,x2,y2,shade,width=1){ctx.strokeStyle=shade;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+    function dateLabel(ms,full=false){return new Date(ms).toLocaleString('tr-TR',{timeZone:'UTC',...(full?{dateStyle:'short',timeStyle:'short'}:{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})})+' UTC';}
+    function ema(period){let value=null;const k=2/(period+1),out=[];for(let i=0;i<candles.length;i++){const close=+candles[i].close;value=value===null?close:value+(close-value)*k;out.push(i<period-1?null:value);}return out;}
+    function view(){const end=Math.min(candles.length,Math.max(1,Math.round(endIndex))),start=Math.max(0,end-visibleCount);return {start,end,rows:candles.slice(start,end)};}
+    function layout(w,h){const left=13,right=w<650?73:94,top=18,bottom=31;return {left,right,top,bottom,width:Math.max(1,w-left-right),height:h-top-bottom};}
+    function draw(){
+      const p=dimensions(price),v=dimensions(volume),ctx=p.ctx,vc=v.ctx,L=layout(p.w,p.h),vh=v.h;
+      ctx.clearRect(0,0,p.w,p.h);vc.clearRect(0,0,v.w,vh);
+      const {start,end,rows}=view();if(!rows.length){ctx.fillStyle=color.muted;ctx.font='13px system-ui';ctx.fillText('Veri bekleniyor…',25,p.h/2);return;}
+      let lo=Infinity,hi=-Infinity,peak=1;for(const r of rows){lo=Math.min(lo,+r.low);hi=Math.max(hi,+r.high);peak=Math.max(peak,+r.volume);}const pad=Math.max((hi-lo)*.08,1),min=lo-pad,max=hi+pad;
+      const y=value=>L.top+(max-value)/(max-min)*L.height,step=L.width/rows.length,candleWidth=Math.max(1,Math.min(10,step*.68));
+      ctx.textAlign='left';ctx.font='11px system-ui';ctx.fillStyle=color.muted;
+      for(let i=0;i<=5;i++){const yy=Math.round(L.top+i*L.height/5)+.5;stroke(ctx,L.left,yy,p.w-L.right,yy,color.grid);ctx.fillText(number.format(max-i*(max-min)/5),p.w-L.right+8,yy+4);}
+      for(let i=0;i<=4;i++){const idx=Math.min(rows.length-1,Math.floor(i*(rows.length-1)/4)),x=L.left+(idx+.5)*step;stroke(ctx,x,L.top,x,p.h-L.bottom,color.grid);ctx.fillText(new Date(rows[idx].time).toLocaleString('tr-TR',{timeZone:'UTC',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),Math.min(p.w-L.right-47,Math.max(L.left,x-24)),p.h-7);}
+      for(let i=0;i<rows.length;i++){const r=rows[i],x=L.left+(i+.5)*step,up=+r.close>=+r.open,shade=up?color.green:color.red,bar=(+r.volume/peak)*(vh-28);
+        stroke(ctx,x,Math.max(L.top,y(+r.high)),x,Math.min(p.h-L.bottom,y(+r.low)),shade);
+        ctx.fillStyle=shade;ctx.fillRect(x-candleWidth/2,Math.min(y(+r.open),y(+r.close)),candleWidth,Math.max(1,Math.abs(y(+r.close)-y(+r.open))));
+        vc.fillStyle=up?'#23c79a80':'#ef657980';vc.fillRect(x-candleWidth/2,vh-19-bar,candleWidth,bar);
+      }
+      function overlay(values,shade){ctx.beginPath();let pen=false;for(let i=start;i<end;i++){const val=values[i];if(val===null){pen=false;continue;}const x=L.left+(i-start+.5)*step;if(!pen)ctx.moveTo(x,y(val));else ctx.lineTo(x,y(val));pen=true;}ctx.strokeStyle=shade;ctx.lineWidth=1.5;ctx.stroke();}
+      overlay(ema20,color.blue);overlay(ema50,color.amber);
+      const newest=candles[candles.length-1];if(end===candles.length){const lastY=y(+newest.close),shade=+newest.close>=+newest.open?color.green:color.red;ctx.setLineDash([4,4]);stroke(ctx,L.left,lastY,p.w-L.right,lastY,shade,1);ctx.setLineDash([]);ctx.fillStyle=shade;ctx.fillRect(p.w-L.right,lastY-10,L.right-6,20);ctx.fillStyle='#09121a';ctx.font='bold 11px system-ui';ctx.fillText(number.format(+newest.close),p.w-L.right+7,lastY+4);}
+      vc.fillStyle=color.muted;vc.font='10px system-ui';vc.fillText('HACİM · BTC',L.left,14);vc.fillText(compact.format(peak),v.w-L.right+7,14);stroke(vc,L.left,vh-19,v.w-L.right,vh-19,color.line);
+      if(hover>=start&&hover<end){const x=L.left+(hover-start+.5)*step;ctx.setLineDash([3,4]);stroke(ctx,x,L.top,x,p.h-L.bottom,'#71849a');stroke(vc,x,2,x,vh-19,'#71849a');ctx.setLineDash([]);}
     }
-    async function load() {
-      if(busy) return; busy=true;
-      try {
-        const response=await fetch('/api/candles?limit='+limit,{cache:'no-store'}); if(!response.ok) throw new Error('HTTP '+response.status);
-        const data=await response.json(); candles=data.candles||[]; hover=-1; hint.style.display='none'; draw();
-        const last=candles.at(-1), first=candles.at(0);
-        if(last) { document.getElementById('last').textContent=fmt.format(+last.close)+' USDT'; const pct=((+last.close/+first.open)-1)*100, badge=document.getElementById('change'); badge.hidden=false; badge.className='delta '+(pct>=0?'up':'down'); badge.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%'; document.getElementById('updated').textContent='Son mum: '+new Date(last.time).toLocaleString('tr-TR',{timeZone:'UTC',dateStyle:'short',timeStyle:'short'})+' UTC'; }
-        document.getElementById('count').textContent=candles.length+' kapanmış mum'; document.getElementById('state').textContent='Güncel · 30 saniyede bir yenilenir'; document.getElementById('dot').classList.remove('off');
-      } catch(err) { document.getElementById('state').textContent='Veriye ulaşılamıyor · yeniden denenecek'; document.getElementById('dot').classList.add('off'); document.getElementById('count').textContent=err.message; document.getElementById('count').classList.add('error'); }
-      finally { busy=false; }
+    function details(index){if(!candles.length)return;const r=candles[index]||candles[candles.length-1],up=+r.close>=+r.open,change=((+r.close/+r.open)-1)*100;
+      const fields=[['O',number.format(+r.open)],['H',number.format(+r.high)],['L',number.format(+r.low)],['C',number.format(+r.close)],['Hacim',volumeNumber.format(+r.volume)+' BTC']];
+      const el=$('ohlc');el.replaceChildren();const date=document.createElement('span');date.textContent=dateLabel(r.time);el.append(date);
+      for(const [label,val] of fields){const s=document.createElement('span'),b=document.createElement('b');s.textContent=label+' ';b.textContent=val;s.append(b);el.append(s);}
+      const delta=document.createElement('span');delta.className='change '+(up?'up':'down');delta.textContent=(change>=0?'+':'')+change.toFixed(2)+'%';el.append(delta);
+      tooltip.replaceChildren();const h=document.createElement('h3');h.textContent=dateLabel(r.time,true);tooltip.append(h);for(const [label,val] of [['Açılış',number.format(+r.open)],['Yüksek',number.format(+r.high)],['Düşük',number.format(+r.low)],['Kapanış',number.format(+r.close)],['Hacim',volumeNumber.format(+r.volume)+' BTC']]){const row=document.createElement('div'),k=document.createElement('span'),value=document.createElement('span');k.textContent=label;value.textContent=val;row.append(k,value);tooltip.append(row);}
     }
-    graph.addEventListener('mousemove',event=>{ if(!candles.length) return; const box=price.getBoundingClientRect(), x=event.clientX-box.left, left=15,right=box.width<600?70:91, index=Math.floor((x-left)/Math.max(1,box.width-left-right)*candles.length); if(index<0||index>=candles.length) { hint.style.display='none'; hover=-1; draw(); return; } if(index===hover) return; hover=index; draw(); const c=candles[index]; hint.innerHTML='<b>'+new Date(c.time).toLocaleString('tr-TR',{timeZone:'UTC',dateStyle:'short',timeStyle:'short'})+' UTC</b>'+[['Açılış',c.open],['Yüksek',c.high],['Düşük',c.low],['Kapanış',c.close],['Hacim',c.volume+' BTC']].map(([k,v])=>'<div><span>'+k+'</span><span>'+v+'</span></div>').join(''); hint.style.display='block'; hint.style.left=Math.min(x+15,box.width-190)+'px'; hint.style.top=Math.max(10,event.clientY-graph.getBoundingClientRect().top-100)+'px'; });
-    graph.addEventListener('mouseleave',()=>{hover=-1;hint.style.display='none';draw();});
-    document.querySelectorAll('[data-limit]').forEach(button=>button.addEventListener('click',()=>{ limit=+button.dataset.limit; document.querySelectorAll('[data-limit]').forEach(b=>b.classList.toggle('active',b===button));load(); }));
-    window.addEventListener('resize',draw); load(); setInterval(load,30000);
+    function updateSummary(){if(!candles.length)return;const last=candles[candles.length-1],last24=candles.slice(-1440),first=last24[0],pct=(+last.close/+first.open-1)*100;
+      $('last').textContent=number.format(+last.close);const badge=$('change');badge.hidden=false;badge.className='badge '+(pct>=0?'up':'down');badge.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'% / '+(last24.length>=1400?'24S':'kayıt süresi');
+      $('high24').textContent=number.format(Math.max(...last24.map(r=>+r.high)));$('low24').textContent=number.format(Math.min(...last24.map(r=>+r.low)));$('volume24').textContent=compact.format(last24.reduce((sum,r)=>sum+(+r.volume),0));
+      $('count').textContent=view().rows.length+' mum görünür · '+candles.length+' kayıt yüklendi';details(hover>=0?hover:candles.length-1);
+      const age=Date.now()-last.time;$('dot').className='dot'+(age>4*60000?' delay':'');$('state').textContent=age>4*60000?'Veri gecikiyor':'Canlı veri';
+    }
+    async function refresh(){if(busy)return;busy=true;try{const response=await fetch('/api/candles?limit=1440',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();if(!Array.isArray(data.candles))throw Error('Geçersiz yanıt');const oldFirst=candles[0]?.time,wasLatest=endIndex>=candles.length;
+        candles=data.candles;ema20=ema(20);ema50=ema(50);if(firstLoad||wasLatest){endIndex=candles.length;firstLoad=false;}else if(oldFirst&&candles[0]){endIndex=Math.max(1,endIndex-Math.round((candles[0].time-oldFirst)/60000));}
+        $('count').classList.remove('error');updateSummary();draw();
+      }catch(error){$('state').textContent='Bağlantı kesildi';$('dot').className='dot off';$('count').textContent='Veriler alınamadı: '+error.message;$('count').classList.add('error');}finally{busy=false;}}
+    function pointerIndex(event){const box=price.getBoundingClientRect(),L=layout(box.width,box.height),{start,rows}=view(),x=event.clientX-box.left;return x<L.left||x>box.width-L.right?-1:Math.max(start,Math.min(start+rows.length-1,start+Math.floor((x-L.left)/L.width*rows.length)));}
+    chart.addEventListener('pointermove',e=>{if(!candles.length)return;if(drag){const box=price.getBoundingClientRect(),L=layout(box.width,box.height),shift=Math.round((e.clientX-drag.x)/L.width*visibleCount);endIndex=Math.max(1,Math.min(candles.length,drag.end-shift));hover=-1;tooltip.style.display='none';updateSummary();draw();return;}
+      const index=pointerIndex(e);if(index===hover)return;hover=index;if(index<0){tooltip.style.display='none';details(candles.length-1);draw();return;}details(index);draw();const bounds=chart.getBoundingClientRect(),x=e.clientX-bounds.left,y=e.clientY-bounds.top;tooltip.style.display='block';tooltip.style.left=Math.max(4,Math.min(x+17,bounds.width-218))+'px';tooltip.style.top=Math.max(4,Math.min(y-105,bounds.height-170))+'px';});
+    chart.addEventListener('pointerdown',e=>{if(!candles.length)return;drag={x:e.clientX,end:endIndex};chart.setPointerCapture(e.pointerId);chart.classList.add('dragging');});
+    chart.addEventListener('pointerup',()=>{drag=null;chart.classList.remove('dragging');});chart.addEventListener('pointercancel',()=>{drag=null;chart.classList.remove('dragging');});chart.addEventListener('pointerleave',()=>{if(drag)return;hover=-1;tooltip.style.display='none';if(candles.length)details(candles.length-1);draw();});
+    chart.addEventListener('wheel',e=>{if(!candles.length)return;e.preventDefault();const old=visibleCount,next=Math.max(25,Math.min(1440,Math.round(old*(e.deltaY>0?1.2:1/1.2))));if(next===old)return;const box=price.getBoundingClientRect(),L=layout(box.width,box.height),fraction=Math.min(1,Math.max(0,(e.clientX-box.left-L.left)/L.width)),pivot=endIndex-old+fraction*old;visibleCount=next;endIndex=Math.max(1,Math.min(candles.length,Math.round(pivot+(1-fraction)*next)));hover=-1;tooltip.style.display='none';document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active',+b.dataset.count===next));updateSummary();draw();},{passive:false});
+    document.querySelectorAll('[data-count]').forEach(button=>button.addEventListener('click',()=>{visibleCount=+button.dataset.count;endIndex=candles.length;hover=-1;tooltip.style.display='none';document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active',b===button));updateSummary();draw();}));
+    $('reset').addEventListener('click',()=>{endIndex=candles.length;hover=-1;tooltip.style.display='none';updateSummary();draw();});
+    new ResizeObserver(draw).observe(chart);setInterval(()=>{$('utcClock').textContent=new Date().toLocaleTimeString('tr-TR',{timeZone:'UTC',hour:'2-digit',minute:'2-digit',second:'2-digit'})+' UTC';},1000);
+    refresh();setInterval(refresh,30000);
   </script>
 </body>
 </html>

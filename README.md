@@ -9,7 +9,7 @@ Continuously stores **closed 1-minute candles** for Bybit's `linear` BTCUSDT per
 3. Add a service variable `DATABASE_URL=${{Postgres.DATABASE_URL}}` (adjust `Postgres` to the database service's actual name). Do this **before its first deploy** or redeploy after setting it. Never put passwords in the repository.
 4. Use **one replica**, with no cron schedule. Railway builds the Dockerfile and runs the worker and web server continuously. Disable sleep mode if enabled. The web server listens on Railway's `PORT`.
 5. In Railway logs, look for `saved=...` and `caught up with last closed candle`. The first run defaults to the last 1,440 minutes. `INITIAL_LOOKBACK_MINUTES` changes only the first run for an empty table.
-6. Generate a Railway service domain for the **collector service**, then open it in your browser. The chart offers 1, 6 and 24 hour views and refreshes every 30 seconds. `/api/candles?limit=360` returns read-only JSON for use by other tools. `/health` responds to the Railway health check.
+6. Generate a Railway service domain for the **collector service**, then open it in your browser. The dashboard offers 1, 6 and 24 hour views, EMA 20/50 overlays, a candle crosshair, drag-to-pan and wheel zoom. It refreshes every 30 seconds. `/api/candles?limit=360` returns read-only JSON for use by other tools. `/health` responds to the Railway health check.
 
 If a database service is added later, note that any initial local SQLite data is ephemeral; the worker will re-fetch the configured initial range into PostgreSQL. The service intentionally refuses to run with local SQLite when `RAILWAY_ENVIRONMENT` is set.
 
