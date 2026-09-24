@@ -36,27 +36,27 @@
       <div class="identity"><div class="symbol">₿</div><div><div class="brand">BTCUSDT <span class="muted">·</span> Perpetual</div><div class="sub">BYBIT / USDT-M / MARKET DATA</div></div></div>
       <div class="topright"><span id="utcClock">UTC —</span><span class="separator"></span><span class="live"><i class="dot" id="dot"></i><span id="state">Bağlanıyor</span></span></div>
     </header>
-    <p class="eyebrow">Son kapanış · 1 dakikalık mum</p>
+    <p class="eyebrow" id="priceLabel">Son kapanış · 1 dakikalık mum</p>
     <section class="overview" aria-label="Piyasa özeti">
       <div class="headline"><strong id="last">—</strong><small>USDT</small></div><span id="change" class="badge" hidden></span>
       <div class="stats"><div class="stat"><span>24s yüksek</span><strong id="high24">—</strong></div><div class="stat"><span>24s düşük</span><strong id="low24">—</strong></div><div class="stat"><span>24s hacim · BTC</span><strong id="volume24">—</strong></div></div>
     </section>
     <section class="panel" aria-label="Fiyat ve hacim grafiği">
-      <div class="panelbar"><div class="instrument">BTCUSDT <span class="muted">·</span> 1m <small>Kapanmış mumlar · UTC</small></div>
+      <div class="panelbar"><div class="instrument">BTCUSDT <span class="muted">·</span> 1m <small>Kapanmış ve oluşan mum · UTC</small></div>
         <div class="tools"><div class="segmented" aria-label="Görünür aralık"><button data-count="60">1S</button><button data-count="360" class="active">6S</button><button data-count="1440">24S</button></div><button id="reset" class="reset" title="En son muma dön">Son mum ↗</button></div>
       </div>
       <div class="ohlc" id="ohlc" aria-live="polite"><span>İmleci grafik üzerinde gezdirerek mum ayrıntılarını inceleyin.</span></div>
       <div class="chart" id="chart"><canvas id="price" role="img" aria-label="BTCUSDT mum ve EMA grafiği"></canvas><canvas id="volume" role="img" aria-label="BTC işlem hacmi grafiği"></canvas><div class="tooltip" id="tooltip"></div></div>
       <div class="bottom"><div class="key"><span><i class="ema20"></i>EMA 20</span><span><i class="ema50"></i>EMA 50</span><span>Yeşil yükseliş · kırmızı düşüş</span></div><span id="count">Veriler yükleniyor</span></div>
     </section>
-    <p class="note">Grafiği sürükleyerek geçmişe gidin, fare tekerleğiyle yakınlaştırın. Veriler 30 saniyede bir yenilenir. Yalnızca kapanmış mumlar gösterilir.</p>
+    <p class="note">Grafiği sürükleyerek geçmişe gidin, fare tekerleğiyle yakınlaştırın. Anlık fiyat ve oluşan mum saniyede bir güncellenir; kalıcı kayıt yalnızca kapanmış mumları içerir.</p>
   </main>
   <script>
     const $=id=>document.getElementById(id), chart=$('chart'), price=$('price'), volume=$('volume'), tooltip=$('tooltip');
     const number=new Intl.NumberFormat('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
     const volumeNumber=new Intl.NumberFormat('tr-TR',{maximumFractionDigits:2});
     const compact=new Intl.NumberFormat('tr-TR',{notation:'compact',maximumFractionDigits:2});
-    let candles=[], ema20=[], ema50=[], visibleCount=360, endIndex=0, hover=-1, busy=false, firstLoad=true, drag=null;
+    let candles=[], closedCandles=[], liveCandle=null, currentPrice=null, priceTs=null, ema20=[], ema50=[], visibleCount=360, endIndex=0, hover=-1, busy=false, liveBusy=false, firstLoad=true, drag=null, confirmedStart=null;
     const color={green:'#23c79a',red:'#ef6579',blue:'#58a9ef',amber:'#eebc73',muted:'#8596ab',line:'#263648',grid:'#1e2c3c'};
     function dimensions(canvas){const box=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2),ctx=canvas.getContext('2d');canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);return {ctx,w:box.width,h:box.height};}
     function stroke(ctx,x1,y1,x2,y2,shade,width=1){ctx.strokeStyle=shade;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
@@ -68,39 +68,48 @@
       const p=dimensions(price),v=dimensions(volume),ctx=p.ctx,vc=v.ctx,L=layout(p.w,p.h),vh=v.h;
       ctx.clearRect(0,0,p.w,p.h);vc.clearRect(0,0,v.w,vh);
       const {start,end,rows}=view();if(!rows.length){ctx.fillStyle=color.muted;ctx.font='13px system-ui';ctx.fillText('Veri bekleniyor…',25,p.h/2);return;}
-      let lo=Infinity,hi=-Infinity,peak=1;for(const r of rows){lo=Math.min(lo,+r.low);hi=Math.max(hi,+r.high);peak=Math.max(peak,+r.volume);}const pad=Math.max((hi-lo)*.08,1),min=lo-pad,max=hi+pad;
+      let lo=Infinity,hi=-Infinity,peak=1;for(const r of rows){lo=Math.min(lo,+r.low);hi=Math.max(hi,+r.high);peak=Math.max(peak,+r.volume);}if(end===candles.length&&currentPrice!==null){lo=Math.min(lo,+currentPrice);hi=Math.max(hi,+currentPrice);}const pad=Math.max((hi-lo)*.08,1),min=lo-pad,max=hi+pad;
       const y=value=>L.top+(max-value)/(max-min)*L.height,step=L.width/rows.length,candleWidth=Math.max(1,Math.min(10,step*.68));
       ctx.textAlign='left';ctx.font='11px system-ui';ctx.fillStyle=color.muted;
       for(let i=0;i<=5;i++){const yy=Math.round(L.top+i*L.height/5)+.5;stroke(ctx,L.left,yy,p.w-L.right,yy,color.grid);ctx.fillText(number.format(max-i*(max-min)/5),p.w-L.right+8,yy+4);}
       for(let i=0;i<=4;i++){const idx=Math.min(rows.length-1,Math.floor(i*(rows.length-1)/4)),x=L.left+(idx+.5)*step;stroke(ctx,x,L.top,x,p.h-L.bottom,color.grid);ctx.fillText(new Date(rows[idx].time).toLocaleString('tr-TR',{timeZone:'UTC',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),Math.min(p.w-L.right-47,Math.max(L.left,x-24)),p.h-7);}
       for(let i=0;i<rows.length;i++){const r=rows[i],x=L.left+(i+.5)*step,up=+r.close>=+r.open,shade=up?color.green:color.red,bar=(+r.volume/peak)*(vh-28);
+        if(r.provisional){ctx.globalAlpha=.6;vc.globalAlpha=.6;}
         stroke(ctx,x,Math.max(L.top,y(+r.high)),x,Math.min(p.h-L.bottom,y(+r.low)),shade);
         ctx.fillStyle=shade;ctx.fillRect(x-candleWidth/2,Math.min(y(+r.open),y(+r.close)),candleWidth,Math.max(1,Math.abs(y(+r.close)-y(+r.open))));
         vc.fillStyle=up?'#23c79a80':'#ef657980';vc.fillRect(x-candleWidth/2,vh-19-bar,candleWidth,bar);
+        ctx.globalAlpha=1;vc.globalAlpha=1;
       }
       function overlay(values,shade){ctx.beginPath();let pen=false;for(let i=start;i<end;i++){const val=values[i];if(val===null){pen=false;continue;}const x=L.left+(i-start+.5)*step;if(!pen)ctx.moveTo(x,y(val));else ctx.lineTo(x,y(val));pen=true;}ctx.strokeStyle=shade;ctx.lineWidth=1.5;ctx.stroke();}
       overlay(ema20,color.blue);overlay(ema50,color.amber);
-      const newest=candles[candles.length-1];if(end===candles.length){const lastY=y(+newest.close),shade=+newest.close>=+newest.open?color.green:color.red;ctx.setLineDash([4,4]);stroke(ctx,L.left,lastY,p.w-L.right,lastY,shade,1);ctx.setLineDash([]);ctx.fillStyle=shade;ctx.fillRect(p.w-L.right,lastY-10,L.right-6,20);ctx.fillStyle='#09121a';ctx.font='bold 11px system-ui';ctx.fillText(number.format(+newest.close),p.w-L.right+7,lastY+4);}
+      const newest=candles[candles.length-1];if(end===candles.length){const quote=currentPrice===null?+newest.close:+currentPrice,lastY=y(quote),shade=quote>=+newest.open?color.green:color.red;ctx.setLineDash([4,4]);stroke(ctx,L.left,lastY,p.w-L.right,lastY,shade,1);ctx.setLineDash([]);ctx.fillStyle=shade;ctx.fillRect(p.w-L.right,lastY-10,L.right-6,20);ctx.fillStyle='#09121a';ctx.font='bold 11px system-ui';ctx.fillText(number.format(quote),p.w-L.right+7,lastY+4);}
       vc.fillStyle=color.muted;vc.font='10px system-ui';vc.fillText('HACİM · BTC',L.left,14);vc.fillText(compact.format(peak),v.w-L.right+7,14);stroke(vc,L.left,vh-19,v.w-L.right,vh-19,color.line);
       if(hover>=start&&hover<end){const x=L.left+(hover-start+.5)*step;ctx.setLineDash([3,4]);stroke(ctx,x,L.top,x,p.h-L.bottom,'#71849a');stroke(vc,x,2,x,vh-19,'#71849a');ctx.setLineDash([]);}
     }
     function details(index){if(!candles.length)return;const r=candles[index]||candles[candles.length-1],up=+r.close>=+r.open,change=((+r.close/+r.open)-1)*100;
       const fields=[['O',number.format(+r.open)],['H',number.format(+r.high)],['L',number.format(+r.low)],['C',number.format(+r.close)],['Hacim',volumeNumber.format(+r.volume)+' BTC']];
-      const el=$('ohlc');el.replaceChildren();const date=document.createElement('span');date.textContent=dateLabel(r.time);el.append(date);
+      const el=$('ohlc');el.replaceChildren();const date=document.createElement('span');date.textContent=dateLabel(r.time)+(r.provisional?' · Oluşuyor':'');el.append(date);
       for(const [label,val] of fields){const s=document.createElement('span'),b=document.createElement('b');s.textContent=label+' ';b.textContent=val;s.append(b);el.append(s);}
       const delta=document.createElement('span');delta.className='change '+(up?'up':'down');delta.textContent=(change>=0?'+':'')+change.toFixed(2)+'%';el.append(delta);
-      tooltip.replaceChildren();const h=document.createElement('h3');h.textContent=dateLabel(r.time,true);tooltip.append(h);for(const [label,val] of [['Açılış',number.format(+r.open)],['Yüksek',number.format(+r.high)],['Düşük',number.format(+r.low)],['Kapanış',number.format(+r.close)],['Hacim',volumeNumber.format(+r.volume)+' BTC']]){const row=document.createElement('div'),k=document.createElement('span'),value=document.createElement('span');k.textContent=label;value.textContent=val;row.append(k,value);tooltip.append(row);}
+      tooltip.replaceChildren();const h=document.createElement('h3');h.textContent=dateLabel(r.time,true)+(r.provisional?' · Oluşuyor':'');tooltip.append(h);for(const [label,val] of [['Açılış',number.format(+r.open)],['Yüksek',number.format(+r.high)],['Düşük',number.format(+r.low)],['Kapanış',number.format(+r.close)],['Hacim',volumeNumber.format(+r.volume)+' BTC']]){const row=document.createElement('div'),k=document.createElement('span'),value=document.createElement('span');k.textContent=label;value.textContent=val;row.append(k,value);tooltip.append(row);}
     }
-    function updateSummary(){if(!candles.length)return;const last=candles[candles.length-1],last24=candles.slice(-1440),first=last24[0],pct=(+last.close/+first.open-1)*100;
-      $('last').textContent=number.format(+last.close);const badge=$('change');badge.hidden=false;badge.className='badge '+(pct>=0?'up':'down');badge.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'% / '+(last24.length>=1400?'24S':'kayıt süresi');
-      $('high24').textContent=number.format(Math.max(...last24.map(r=>+r.high)));$('low24').textContent=number.format(Math.min(...last24.map(r=>+r.low)));$('volume24').textContent=compact.format(last24.reduce((sum,r)=>sum+(+r.volume),0));
-      $('count').textContent=view().rows.length+' mum görünür · '+candles.length+' kayıt yüklendi';details(hover>=0?hover:candles.length-1);
-      const age=Date.now()-last.time;$('dot').className='dot'+(age>4*60000?' delay':'');$('state').textContent=age>4*60000?'Veri gecikiyor':'Canlı veri';
+    function updateSummary(){if(!candles.length)return;const last=candles[candles.length-1],last24=closedCandles.slice(-1440),first=last24[0]||last,quote=currentPrice===null?+last.close:+currentPrice,pct=(quote/+first.open-1)*100;
+      $('last').textContent=number.format(quote);$('priceLabel').textContent=currentPrice===null?'Son kapanış · 1 dakikalık mum':'Anlık fiyat · 1 dakikalık mum';const badge=$('change');badge.hidden=false;badge.className='badge '+(pct>=0?'up':'down');badge.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'% / '+(last24.length>=1400?'24S':'kayıt süresi');
+      $('high24').textContent=last24.length?number.format(Math.max(...last24.map(r=>+r.high))):'—';$('low24').textContent=last24.length?number.format(Math.min(...last24.map(r=>+r.low))):'—';$('volume24').textContent=last24.length?compact.format(last24.reduce((sum,r)=>sum+(+r.volume),0)):'—';
+      $('count').textContent=view().rows.length+' mum görünür · '+closedCandles.length+' kapanmış kayıt'+(liveCandle?' · 1 oluşan mum':'');details(hover>=0?hover:candles.length-1);
+      const age=Date.now()-(priceTs||last.time),streamLive=currentPrice!==null&&priceTs!==null&&age<10000;$('dot').className='dot'+(streamLive?'':age>4*60000?' delay':'');$('state').textContent=streamLive?'Anlık akış':age>4*60000?'Veri gecikiyor':'Son kapanış';
     }
-    async function refresh(){if(busy)return;busy=true;try{const response=await fetch('/api/candles?limit=1440',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();if(!Array.isArray(data.candles))throw Error('Geçersiz yanıt');const oldFirst=candles[0]?.time,wasLatest=endIndex>=candles.length;
-        candles=data.candles;ema20=ema(20);ema50=ema(50);if(firstLoad||wasLatest){endIndex=candles.length;firstLoad=false;}else if(oldFirst&&candles[0]){endIndex=Math.max(1,endIndex-Math.round((candles[0].time-oldFirst)/60000));}
-        $('count').classList.remove('error');updateSummary();draw();
+    function mergeLive(){const oldFirst=candles[0]?.time,wasLatest=endIndex>=candles.length;
+      candles=closedCandles.slice();if(liveCandle&&(!candles.length||liveCandle.time>candles[candles.length-1].time))candles.push(liveCandle);
+      ema20=ema(20);ema50=ema(50);if(firstLoad||wasLatest){endIndex=candles.length;firstLoad=false;}else if(oldFirst&&candles[0])endIndex=Math.max(1,Math.min(candles.length,endIndex-Math.round((candles[0].time-oldFirst)/60000)));
+      if(hover>=candles.length)hover=-1;updateSummary();draw();
+    }
+    async function refresh(){if(busy)return;busy=true;try{const response=await fetch('/api/candles?limit=1440',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();if(!Array.isArray(data.candles))throw Error('Geçersiz yanıt');
+        closedCandles=data.candles;$('count').classList.remove('error');mergeLive();
       }catch(error){$('state').textContent='Bağlantı kesildi';$('dot').className='dot off';$('count').textContent='Veriler alınamadı: '+error.message;$('count').classList.add('error');}finally{busy=false;}}
+    async function refreshLive(){if(liveBusy)return;liveBusy=true;try{const response=await fetch('/api/live',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();currentPrice=data.connected&&data.price!==null&&Number.isFinite(+data.price)?+data.price:null;priceTs=currentPrice===null?null:data.priceTs;liveCandle=data.connected&&data.forming?data.forming:null;
+        if(data.confirmedStart&&data.confirmedStart!==confirmedStart){confirmedStart=data.confirmedStart;refresh();}mergeLive();
+      }catch(error){currentPrice=null;priceTs=null;liveCandle=null;mergeLive();}finally{liveBusy=false;}}
     function pointerIndex(event){const box=price.getBoundingClientRect(),L=layout(box.width,box.height),{start,rows}=view(),x=event.clientX-box.left;return x<L.left||x>box.width-L.right?-1:Math.max(start,Math.min(start+rows.length-1,start+Math.floor((x-L.left)/L.width*rows.length)));}
     chart.addEventListener('pointermove',e=>{if(!candles.length)return;if(drag){const box=price.getBoundingClientRect(),L=layout(box.width,box.height),shift=Math.round((e.clientX-drag.x)/L.width*visibleCount);endIndex=Math.max(1,Math.min(candles.length,drag.end-shift));hover=-1;tooltip.style.display='none';updateSummary();draw();return;}
       const index=pointerIndex(e);if(index===hover)return;hover=index;if(index<0){tooltip.style.display='none';details(candles.length-1);draw();return;}details(index);draw();const bounds=chart.getBoundingClientRect(),x=e.clientX-bounds.left,y=e.clientY-bounds.top;tooltip.style.display='block';tooltip.style.left=Math.max(4,Math.min(x+17,bounds.width-218))+'px';tooltip.style.top=Math.max(4,Math.min(y-105,bounds.height-170))+'px';});
@@ -110,7 +119,7 @@
     document.querySelectorAll('[data-count]').forEach(button=>button.addEventListener('click',()=>{visibleCount=+button.dataset.count;endIndex=candles.length;hover=-1;tooltip.style.display='none';document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active',b===button));updateSummary();draw();}));
     $('reset').addEventListener('click',()=>{endIndex=candles.length;hover=-1;tooltip.style.display='none';updateSummary();draw();});
     new ResizeObserver(draw).observe(chart);setInterval(()=>{$('utcClock').textContent=new Date().toLocaleTimeString('tr-TR',{timeZone:'UTC',hour:'2-digit',minute:'2-digit',second:'2-digit'})+' UTC';},1000);
-    refresh();setInterval(refresh,30000);
+    refresh();refreshLive();setInterval(refreshLive,1000);setInterval(refresh,30000);
   </script>
 </body>
 </html>

@@ -1,1 +1,2 @@
 psycopg[binary]>=3.2,<4
+websocket-client>=1.9,<2

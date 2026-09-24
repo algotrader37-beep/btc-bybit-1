@@ -10,9 +10,11 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 import collector
+from livefeed import LiveFeed
 
 PAGE = Path(__file__).with_name("dashboard.html").read_bytes()
 LOG = logging.getLogger("dashboard")
+FEED = LiveFeed()
 
 
 def recent_candles(limit):
@@ -55,6 +57,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, PAGE, "text/html; charset=utf-8")
         if route.path == "/health":
             return self.reply(200, b"ok", "text/plain; charset=utf-8")
+        if route.path == "/api/live":
+            return self.reply(200, json.dumps(FEED.snapshot()).encode(), "application/json; charset=utf-8")
         if route.path != "/api/candles":
             return self.reply(404, b"Not found", "text/plain; charset=utf-8")
         try:
@@ -78,6 +82,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     port = int(os.getenv("PORT", "8080"))
+    threading.Thread(target=FEED.run, daemon=True).start()
     server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     LOG.info("dashboard listening on port %d", port)
