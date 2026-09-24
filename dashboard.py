@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 import collector
+import paper_trader
 from livefeed import LiveFeed
 
 PAGE = Path(__file__).with_name("dashboard.html").read_bytes()
@@ -18,6 +19,21 @@ FEED = LiveFeed()
 
 
 def recent_candles(limit):
+    connection, placeholder = connect_db()
+    try:
+        rows = connection.execute(
+            "SELECT start_ms, open, high, low, close, volume, turnover "
+            f"FROM ohlcv WHERE symbol={placeholder} AND interval={placeholder} "
+            f"ORDER BY start_ms DESC LIMIT {placeholder}",
+            (collector.SYMBOL, collector.INTERVAL, limit),
+        ).fetchall()
+        return [dict(zip(("time", "open", "high", "low", "close", "volume", "turnover"),
+                         (int(row[0]), *(str(value) for value in row[1:])))) for row in reversed(rows)]
+    finally:
+        connection.close()
+
+
+def connect_db():
     url = os.getenv("DATABASE_URL", "sqlite:///ohlcv.sqlite3")
     if url.startswith(("postgres://", "postgresql://")):
         import psycopg
@@ -28,15 +44,13 @@ def recent_candles(limit):
             raise ValueError("Invalid database URL")
         connection = sqlite3.connect("ohlcv.sqlite3", timeout=5)
         placeholder = "?"
+    return connection, placeholder
+
+
+def paper_snapshot():
+    connection, _ = connect_db()
     try:
-        rows = connection.execute(
-            "SELECT start_ms, open, high, low, close, volume, turnover "
-            f"FROM ohlcv WHERE symbol={placeholder} AND interval={placeholder} "
-            f"ORDER BY start_ms DESC LIMIT {placeholder}",
-            (collector.SYMBOL, collector.INTERVAL, limit),
-        ).fetchall()
-        return [dict(zip(("time", "open", "high", "low", "close", "volume", "turnover"),
-                         (int(row[0]), *(str(value) for value in row[1:])))) for row in reversed(rows)]
+        return paper_trader.snapshot(connection)
     finally:
         connection.close()
 
@@ -59,6 +73,12 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, b"ok", "text/plain; charset=utf-8")
         if route.path == "/api/live":
             return self.reply(200, json.dumps(FEED.snapshot()).encode(), "application/json; charset=utf-8")
+        if route.path == "/api/paper":
+            try:
+                return self.reply(200, json.dumps(paper_snapshot()).encode(), "application/json; charset=utf-8")
+            except Exception:
+                LOG.exception("Failed to query paper trading")
+                return self.reply(503, b'{"error":"Paper data temporarily unavailable"}', "application/json")
         if route.path != "/api/candles":
             return self.reply(404, b"Not found", "text/plain; charset=utf-8")
         try:

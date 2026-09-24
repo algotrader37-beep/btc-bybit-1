@@ -11,6 +11,8 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
+import paper_trader
+
 LOG = logging.getLogger("ohlcv")
 STOP = False
 SYMBOL = "BTCUSDT"
@@ -140,6 +142,7 @@ def main():
         try:
             store = Store(url)
             count = collect_once(store, int(time.time() * 1000), lookback)
+            paper_trader.update(store)
             delay = 5
             if count:
                 LOG.info("caught up with last closed candle")
