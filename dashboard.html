@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BTCUSDT • Bybit Perpetual</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1018; --panel:#121b28; --line:#273345; --muted:#8a9aae; --text:#eef4fc; --green:#29c7a0; --red:#fa7084; --gold:#f6bd62; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 85% -10%,#1c2a3b 0,transparent 35%),var(--bg); color:var(--text); font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif; }
+    .wrap { width:min(1460px,calc(100% - 40px)); margin:auto; padding:30px 0 42px; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:25px; }
+    .brand { display:flex; align-items:center; gap:13px; }
+    .mark { display:grid; place-items:center; width:38px; height:38px; border-radius:12px; background:#202c3c; color:var(--gold); font-weight:800; font-size:18px; }
+    .brand strong { font-size:18px; letter-spacing:.2px; }
+    .brand small { display:block; color:var(--muted); font-size:12px; }
+    .live { color:var(--muted); display:flex; gap:9px; align-items:center; font-size:12px; }
+    .dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 14px var(--green); }
+    .dot.off { background:var(--red); box-shadow:none; }
+    .summary { display:flex; align-items:end; gap:25px; flex-wrap:wrap; margin:0 0 19px; }
+    .summary h1 { font-size:clamp(28px,4vw,45px); margin:0; line-height:1.1; letter-spacing:-1px; font-variant-numeric:tabular-nums; }
+    .delta { padding:5px 9px; border-radius:7px; font-weight:700; font-variant-numeric:tabular-nums; }
+    .up { color:var(--green); background:#183930; } .down { color:var(--red); background:#442630; }
+    .meta { color:var(--muted); font-size:12px; margin-left:auto; }
+    .card { background:linear-gradient(160deg,#14202d,#111925); border:1px solid var(--line); border-radius:18px; box-shadow:0 22px 55px #0004; overflow:hidden; }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:18px 22px 12px; }
+    .toolbar h2 { font-size:14px; margin:0; font-weight:650; }
+    .toolbar h2 span { font-weight:400; color:var(--muted); margin-left:8px; }
+    .ranges { display:flex; gap:5px; background:#0d1520; border:1px solid var(--line); border-radius:9px; padding:3px; }
+    button { background:transparent; border:0; color:var(--muted); border-radius:6px; padding:6px 13px; cursor:pointer; font:inherit; font-weight:650; }
+    button:hover { color:var(--text); } button.active { color:var(--text); background:#293a4f; }
+    .graph { padding:0 10px 8px 10px; position:relative; }
+    canvas { width:100%; display:block; }
+    #price { height:390px; } #volume { height:112px; }
+    .hint { position:absolute; display:none; pointer-events:none; background:#1b2a3a; border:1px solid #42536a; border-radius:9px; box-shadow:0 10px 30px #0009; padding:9px 11px; min-width:170px; font-size:12px; z-index:2; font-variant-numeric:tabular-nums; }
+    .hint b { display:block; margin-bottom:5px; color:var(--gold); }
+    .hint div { display:flex; justify-content:space-between; gap:14px; }
+    .hint span:first-child { color:var(--muted); }
+    .foot { border-top:1px solid var(--line); color:var(--muted); padding:12px 22px 15px; display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap; font-size:12px; }
+    .error { color:var(--red); }
+    @media(max-width:700px) { .wrap { width:calc(100% - 20px); padding-top:16px; } .card { border-radius:12px; } #price { height:320px; } #volume { height:85px; } .meta { width:100%; margin-left:0; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="brand"><div class="mark">₿</div><div><strong>BTCUSDT Perpetual</strong><small>Bybit · USDT sözleşmesi · 1 dakikalık mumlar</small></div></div>
+      <div class="live"><i id="dot" class="dot"></i><span id="state">Veri yükleniyor</span></div>
+    </header>
+    <div class="summary"><h1 id="last">—</h1><span id="change" class="delta" hidden></span><div id="updated" class="meta">UTC · yalnızca kapanmış mumlar</div></div>
+    <section class="card">
+      <div class="toolbar"><h2>Fiyat grafiği <span>OHLC · USDT</span></h2><div class="ranges" aria-label="Grafik zaman aralığı"><button data-limit="60">1 saat</button><button data-limit="360" class="active">6 saat</button><button data-limit="1440">24 saat</button></div></div>
+      <div class="graph" id="graph"><canvas id="price" aria-label="BTCUSDT mum grafiği" role="img"></canvas><canvas id="volume" aria-label="BTC işlem hacmi" role="img"></canvas><div id="hint" class="hint"></div></div>
+      <div class="foot"><span>Yeşil: yükseliş · Kırmızı: düşüş · Alt panel: BTC hacmi</span><span id="count">Veri bekleniyor</span></div>
+    </section>
+  </main>
+  <script>
+    const price=document.getElementById('price'), volume=document.getElementById('volume'), graph=document.getElementById('graph'), hint=document.getElementById('hint');
+    const fmt=new Intl.NumberFormat('tr-TR',{maximumFractionDigits:2,minimumFractionDigits:2});
+    const compact=new Intl.NumberFormat('tr-TR',{notation:'compact',maximumFractionDigits:1});
+    let candles=[], limit=360, busy=false, hover=-1;
+    function size(canvas) { const scale=window.devicePixelRatio||1, box=canvas.getBoundingClientRect(); canvas.width=Math.round(box.width*scale); canvas.height=Math.round(box.height*scale); const ctx=canvas.getContext('2d'); ctx.setTransform(scale,0,0,scale,0,0); return {ctx,w:box.width,h:box.height}; }
+    function line(ctx,x1,y1,x2,y2,color,width=1) { ctx.strokeStyle=color; ctx.lineWidth=width; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+    function draw() {
+      const a=size(price), b=size(volume), ctx=a.ctx, vctx=b.ctx, w=a.w, h=a.h, vh=b.h;
+      ctx.clearRect(0,0,w,h); vctx.clearRect(0,0,w,vh);
+      const left=15,right=w<600?70:91,top=14,bottom=27, plotW=Math.max(1,w-left-right),plotH=h-top-bottom;
+      if(!candles.length) { ctx.fillStyle='#8a9aae'; ctx.font='14px system-ui'; ctx.fillText('Kayıtlı mum bekleniyor…',left+10,h/2); return; }
+      const lows=candles.map(c=>+c.low), highs=candles.map(c=>+c.high), min=Math.min(...lows), max=Math.max(...highs), padding=Math.max((max-min)*.07,1), lo=min-padding, hi=max+padding;
+      const y=p=>top+(hi-p)/(hi-lo)*plotH, step=plotW/candles.length, maxVol=Math.max(...candles.map(c=>+c.volume),1);
+      ctx.font='11px system-ui'; ctx.textAlign='left'; ctx.fillStyle='#8a9aae';
+      for(let i=0;i<=4;i++) { const yy=top+i*plotH/4; line(ctx,left,yy,w-right,yy,'#263344'); ctx.fillText(fmt.format(hi-i*(hi-lo)/4),w-right+8,yy+4); }
+      for(let i=0;i<=4;i++) { const index=Math.min(candles.length-1,Math.round(i*(candles.length-1)/4)),x=left+(index+.5)*step,t=new Date(candles[index].time); line(ctx,x,top,x,h-bottom,'#1e2938'); const label=t.toLocaleString('tr-TR',{timeZone:'UTC',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); ctx.fillText(label,Math.min(Math.max(x-22,left),w-right-48),h-7); }
+      for(let i=0;i<candles.length;i++) { const c=candles[i],x=left+(i+.5)*step,up=+c.close>=+c.open,color=up?'#29c7a0':'#fa7084',bw=Math.max(1,Math.min(step*.74,11)); line(ctx,x,y(+c.high),x,y(+c.low),color); ctx.fillStyle=color; ctx.fillRect(x-bw/2,Math.min(y(+c.open),y(+c.close)),bw,Math.max(1,Math.abs(y(+c.close)-y(+c.open)))); vctx.fillStyle=up?'#29c7a080':'#fa708480'; const bar=(+c.volume/maxVol)*(vh-25); vctx.fillRect(x-bw/2,vh-20-bar,bw,bar); }
+      vctx.fillStyle='#8a9aae'; vctx.font='11px system-ui'; vctx.fillText('HACİM · BTC',left,15); vctx.fillText(compact.format(maxVol),w-right+8,15); line(vctx,left,vh-20,w-right,vh-20,'#263344');
+      if(hover>=0 && hover<candles.length) { const x=left+(hover+.5)*step; line(ctx,x,top,x,h-bottom,'#8291a1',1); line(vctx,x,0,x,vh-20,'#8291a1',1); }
+    }
+    async function load() {
+      if(busy) return; busy=true;
+      try {
+        const response=await fetch('/api/candles?limit='+limit,{cache:'no-store'}); if(!response.ok) throw new Error('HTTP '+response.status);
+        const data=await response.json(); candles=data.candles||[]; hover=-1; hint.style.display='none'; draw();
+        const last=candles.at(-1), first=candles.at(0);
+        if(last) { document.getElementById('last').textContent=fmt.format(+last.close)+' USDT'; const pct=((+last.close/+first.open)-1)*100, badge=document.getElementById('change'); badge.hidden=false; badge.className='delta '+(pct>=0?'up':'down'); badge.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%'; document.getElementById('updated').textContent='Son mum: '+new Date(last.time).toLocaleString('tr-TR',{timeZone:'UTC',dateStyle:'short',timeStyle:'short'})+' UTC'; }
+        document.getElementById('count').textContent=candles.length+' kapanmış mum'; document.getElementById('state').textContent='Güncel · 30 saniyede bir yenilenir'; document.getElementById('dot').classList.remove('off');
+      } catch(err) { document.getElementById('state').textContent='Veriye ulaşılamıyor · yeniden denenecek'; document.getElementById('dot').classList.add('off'); document.getElementById('count').textContent=err.message; document.getElementById('count').classList.add('error'); }
+      finally { busy=false; }
+    }
+    graph.addEventListener('mousemove',event=>{ if(!candles.length) return; const box=price.getBoundingClientRect(), x=event.clientX-box.left, left=15,right=box.width<600?70:91, index=Math.floor((x-left)/Math.max(1,box.width-left-right)*candles.length); if(index<0||index>=candles.length) { hint.style.display='none'; hover=-1; draw(); return; } if(index===hover) return; hover=index; draw(); const c=candles[index]; hint.innerHTML='<b>'+new Date(c.time).toLocaleString('tr-TR',{timeZone:'UTC',dateStyle:'short',timeStyle:'short'})+' UTC</b>'+[['Açılış',c.open],['Yüksek',c.high],['Düşük',c.low],['Kapanış',c.close],['Hacim',c.volume+' BTC']].map(([k,v])=>'<div><span>'+k+'</span><span>'+v+'</span></div>').join(''); hint.style.display='block'; hint.style.left=Math.min(x+15,box.width-190)+'px'; hint.style.top=Math.max(10,event.clientY-graph.getBoundingClientRect().top-100)+'px'; });
+    graph.addEventListener('mouseleave',()=>{hover=-1;hint.style.display='none';draw();});
+    document.querySelectorAll('[data-limit]').forEach(button=>button.addEventListener('click',()=>{ limit=+button.dataset.limit; document.querySelectorAll('[data-limit]').forEach(b=>b.classList.toggle('active',b===button));load(); }));
+    window.addEventListener('resize',draw); load(); setInterval(load,30000);
+  </script>
+</body>
+</html>
