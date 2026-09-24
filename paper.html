@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1018">
+  <title>Sanal İşlemler | BTCUSDT</title>
+  <style>
+    :root {color-scheme:dark;--bg:#0b1018;--panel:#111a26;--line:#233142;--line2:#1a2837;--text:#eaf0f8;--muted:#8596ab;--green:#23c79a;--red:#ef6579;--amber:#eebc73}
+    * {box-sizing:border-box}body {margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}.shell {max-width:1400px;margin:auto;padding:0 26px 44px}
+    .top {height:74px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:16px}.identity {display:flex;align-items:center;gap:12px}.symbol {display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#f5a63d;color:#171b24;font-weight:800;font-size:20px}.brand {font-size:16px;font-weight:750}.sub {color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}.topright {display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.dot {width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px #23c79a88}.dot.off {background:var(--red);box-shadow:none}
+    .pages {display:flex;gap:6px;padding:14px 0 2px}.pages a {color:var(--muted);text-decoration:none;padding:8px 13px;border-radius:7px;font-size:12px;font-weight:700}.pages a:hover {color:var(--text)}.pages a.active {color:var(--text);background:#25364a}
+    .eyebrow {margin:28px 0 4px;color:var(--muted);font-size:11px;letter-spacing:.12em;font-weight:700;text-transform:uppercase}.intro {display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:24px}.intro h1 {margin:0;font-size:clamp(28px,3vw,38px);letter-spacing:-.035em;line-height:1.15}.intro p {color:var(--muted);margin:7px 0 0;font-size:12px}.pill {border:1px solid #665435;background:#362b20;color:var(--amber);border-radius:7px;font-size:11px;font-weight:750;letter-spacing:.07em;padding:7px 10px;white-space:nowrap}
+    .cards {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:17px}.card,.panel {background:var(--panel);border:1px solid var(--line);border-radius:11px;box-shadow:0 15px 45px #0002}.card {padding:17px 19px;min-height:104px}.card span {display:block;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase}.card strong {display:block;font-size:23px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:8px 0 2px}.card small {color:var(--muted);font-size:11px}.positive {color:var(--green)!important}.negative {color:var(--red)!important}
+    .panel {margin-bottom:17px}.panelhead {display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 19px;border-bottom:1px solid var(--line)}.panelhead h2 {font-size:15px;margin:0}.panelhead span {font-size:11px;color:var(--muted)}.position {padding:19px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}.position b {font-size:17px}.position .placeholder {color:var(--muted)}.position dl {display:flex;gap:24px;flex-wrap:wrap;margin:0}.position dt {font-size:11px;color:var(--muted)}.position dd {margin:3px 0 0;font-variant-numeric:tabular-nums;font-weight:650}
+    .tablewrap {overflow-x:auto}.trades {border-collapse:collapse;width:100%;min-width:810px;font-size:12px}.trades th,.trades td {text-align:left;padding:12px 18px;border-bottom:1px solid var(--line2);font-variant-numeric:tabular-nums;white-space:nowrap}.trades th {color:var(--muted);font-weight:600}.trades tr:last-child td {border-bottom:0}.muted {color:var(--muted)}.explain {padding:16px 19px;color:var(--muted);font-size:12px;line-height:1.7}.explain p {margin:0 0 9px}.explain p:last-child {margin:0}.error {color:var(--red)}
+    @media(max-width:900px) {.cards {grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px) {.shell {padding:0 13px 30px}.top {height:64px}.brand {font-size:14px}.intro {align-items:start;flex-direction:column}.cards {gap:8px}.card {padding:13px;min-height:92px}.card strong {font-size:18px}.position dl {gap:14px}.trades th,.trades td {padding:10px 12px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top"><div class="identity"><div class="symbol">₿</div><div><div class="brand">BTCUSDT <span class="muted">·</span> Perpetual</div><div class="sub">BYBIT / USDT-M / MARKET DATA</div></div></div><div class="topright"><i class="dot" id="dot"></i><span id="state">Bağlanıyor</span></div></header>
+    <nav class="pages" aria-label="Sayfalar"><a href="/">Grafik</a><a class="active" aria-current="page" href="/paper">Sanal işlemler</a></nav>
+    <p class="eyebrow">Strateji takibi</p>
+    <section class="intro"><div><h1>Sanal işlemler</h1><p>BTCUSDT · kapanmış 1 dakikalık mumlarda EMA 20/50 kesişimi</p></div><span class="pill">SADECE SİMÜLASYON</span></section>
+    <section class="cards" aria-label="Sanal performans">
+      <div class="card"><span>Sanal bakiye</span><strong id="balance">—</strong><small>Gerçekleşmemiş PnL hariç</small></div>
+      <div class="card"><span>Başlangıca göre</span><strong id="result">—</strong><small>Ücret ve fonlama dahil</small></div>
+      <div class="card"><span>Kapanan işlem</span><strong id="count">—</strong><small>Son 30 işlem aşağıda</small></div>
+      <div class="card"><span>Fonlama etkisi</span><strong id="funding">—</strong><small id="fundingCount">Gerçekleşmiş oranlar</small></div>
+    </section>
+    <section class="panel" aria-label="Açık sanal pozisyon"><div class="panelhead"><h2>Açık pozisyon</h2><span id="processed">—</span></div><div class="position" id="position"><span class="placeholder">Veriler yükleniyor…</span></div></section>
+    <section class="panel" aria-label="Sanal işlem geçmişi"><div class="panelhead"><h2>İşlem geçmişi</h2><span>USDT · UTC</span></div><div class="tablewrap"><table class="trades"><thead><tr><th>Yön</th><th>Giriş</th><th>Çıkış</th><th>Giriş fiyatı</th><th>Çıkış fiyatı</th><th>Kayma</th><th>Fonlama ±</th><th>Net PnL</th></tr></thead><tbody id="trades"><tr><td colspan="8" class="muted">Henüz kapanmış işlem yok.</td></tr></tbody></table></div></section>
+    <section class="panel" aria-label="Hesaplama varsayımları"><div class="panelhead"><h2>Hesaplama</h2><span id="sync">Fonlama kontrolü bekleniyor</span></div><div class="explain"><p>Başlangıç: 1.000 USDT · sabit pozisyon: 100 USDT · varsayımsal işlem ücreti: %0,06 / yön · varsayımsal kayma: %0,02 / yön. Kayma giriş ve çıkış fiyatına yansır; net PnL’den ikinci kez düşülmez.</p><p>Fonlama Bybit’in gerçekleşmiş oranından ve fonlama öncesi 1 dakikalık mark fiyatı kapanışından hesaplanır. Gerçek emir kayması ile fonlamadaki anlık mark fiyatı farklı olabilir. Sinyal mum kapanışında üretilir; gerçekleşme varsayımsaldır. Gerçek emir gönderilmez.</p></div></section>
+  </main>
+  <script>
+    const $=id=>document.getElementById(id);
+    const money=new Intl.NumberFormat('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const fine=new Intl.NumberFormat('tr-TR',{minimumFractionDigits:4,maximumFractionDigits:4});
+    const signed=(n,fmt=money)=>(n>=0?'+':'')+fmt.format(n);
+    const date=ms=>new Date(ms).toLocaleString('tr-TR',{timeZone:'UTC',dateStyle:'short',timeStyle:'short'})+' UTC';
+    async function refresh(){try{const response=await fetch('/api/paper',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();if(!data.ready){$('state').textContent='İlk veri bekleniyor';return;}
+      $('state').textContent='Sanal sistem çalışıyor';$('dot').className='dot';$('balance').textContent=money.format(+data.balance)+' USDT';const pnl=+data.balance-(+data.initialBalance);$('result').textContent=signed(pnl)+' USDT';$('result').className=pnl>=0?'positive':'negative';$('count').textContent=data.closedTradeCount;
+      $('funding').textContent=signed(+data.fundingCashflow,fine)+' USDT';$('funding').className=+data.fundingCashflow>=0?'positive':'negative';$('fundingCount').textContent=data.fundingCount+' fonlama ödemesi';$('processed').textContent='Son mum: '+date(data.lastProcessed);
+      const position=$('position');position.replaceChildren();if(data.position){const b=document.createElement('b');b.className=data.position.side==='LONG'?'positive':'negative';b.textContent=data.position.side;position.append(b);const dl=document.createElement('dl');for(const [label,value] of [['Giriş',money.format(+data.position.entryPrice)+' USDT'],['Zaman',date(data.position.entryTime)],['Miktar',(+data.position.qty).toFixed(6)+' BTC'],['Fonlama',signed(+data.position.funding,fine)+' USDT']]){const cell=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;cell.append(dt,dd);dl.append(cell);}position.append(dl);}else{const span=document.createElement('span');span.className='placeholder';span.textContent='Şu anda açık sanal pozisyon yok.';position.append(span);}
+      const body=$('trades');body.replaceChildren();if(!data.trades.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=8;td.className='muted';td.textContent='Henüz kapanmış işlem yok; strateji yeni mumları takip ediyor.';tr.append(td);body.append(tr);}for(const trade of data.trades){const tr=document.createElement('tr');for(const value of [trade.side,date(trade.entryTime),date(trade.exitTime),money.format(+trade.entryPrice),money.format(+trade.exitPrice),fine.format(+trade.slippage),signed(+trade.funding,fine)]){const td=document.createElement('td');td.textContent=value;tr.append(td);}const net=document.createElement('td');net.className=+trade.net>=0?'positive':'negative';net.textContent=signed(+trade.net);tr.append(net);body.append(tr);}
+      $('sync').textContent=data.fundingError?'Fonlama kontrolü gecikiyor':data.fundingLastCheck?'Fonlama son kontrol: '+date(data.fundingLastCheck):'Fonlama kontrolü bekleniyor';$('sync').className=data.fundingError?'error':'';
+    }catch(error){$('dot').className='dot off';$('state').textContent='Bağlantı kesildi';$('sync').textContent='Veriler alınamadı: '+error.message;$('sync').className='error';}}
+    refresh();setInterval(refresh,15000);
+  </script>
+</body>
+</html>

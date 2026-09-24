@@ -26,9 +26,9 @@
     .tooltip {position:absolute;display:none;pointer-events:none;z-index:3;background:#182637ee;border:1px solid #43556a;box-shadow:0 16px 38px #0009;border-radius:8px;padding:10px 12px;min-width:200px;font-size:12px;font-variant-numeric:tabular-nums;backdrop-filter:blur(8px)}.tooltip h3 {margin:0 0 8px;color:var(--amber);font-size:12px;font-weight:650}.tooltip div {display:flex;justify-content:space-between;gap:18px;margin:2px 0}.tooltip span:first-child {color:var(--muted)}
     .bottom {border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 19px;color:var(--muted);font-size:11px;flex-wrap:wrap}.key {display:flex;align-items:center;gap:15px;flex-wrap:wrap}.key i {display:inline-block;width:16px;height:2px;margin-right:5px;vertical-align:middle}.key .ema20 {background:var(--blue)}.key .ema50 {background:var(--amber)}.muted {color:var(--muted)}
     .note {color:#6e8198;font-size:11px;margin:13px 2px 0}.error {color:var(--red)!important}
-    .paper {margin-top:18px;padding:18px 20px}.paperhead {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.paperhead h2 {font-size:16px;margin:0}.paperhead small {color:var(--amber);font-size:11px;font-weight:700;letter-spacing:.08em}.papergrid {display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.papergrid div {background:#0c1420;border:1px solid var(--line);border-radius:8px;padding:11px 14px}.papergrid span {display:block;color:var(--muted);font-size:11px}.papergrid strong {font-variant-numeric:tabular-nums;font-size:16px}.paperinfo {color:var(--muted);font-size:11px;margin:6px 0 14px}.paperrows {overflow-x:auto}.paper table {border-collapse:collapse;width:100%;font-size:12px;min-width:640px}.paper th,.paper td {text-align:left;padding:9px 8px;border-bottom:1px solid var(--line2);font-variant-numeric:tabular-nums}.paper th {color:var(--muted);font-weight:600}.paper .profit {color:var(--green)}.paper .loss {color:var(--red)}
+    .pages {display:flex;gap:6px;padding:14px 0 2px}.pages a {color:var(--muted);text-decoration:none;padding:8px 13px;border-radius:7px;font-size:12px;font-weight:700}.pages a:hover {color:var(--text)}.pages a.active {color:var(--text);background:#25364a}
     @media(max-width:850px) {.shell {padding:0 13px 30px}.stats {width:100%;margin:0;gap:10px}.stat:first-child {border-left:0;padding-left:0}.stat {padding-left:10px}.stat strong {font-size:13px}.overview {gap:13px}.top {height:64px}.topright .separator,.topright #utcClock {display:none}.panelbar {align-items:flex-start} #price {height:360px} #volume {height:105px}}
-    @media(max-width:480px) {.stats {grid-template-columns:repeat(3,1fr)}.stat span {font-size:9px}.stat strong {font-size:12px}.ohlc {gap:8px 13px;font-size:11px}.chart {padding:4px 3px 0} #price {height:310px} #volume {height:90px}.tools {gap:6px}.segmented button {padding:6px 7px}.brand {font-size:14px}.papergrid {gap:5px}.papergrid div {padding:9px}.papergrid strong {font-size:12px}}
+    @media(max-width:480px) {.stats {grid-template-columns:repeat(3,1fr)}.stat span {font-size:9px}.stat strong {font-size:12px}.ohlc {gap:8px 13px;font-size:11px}.chart {padding:4px 3px 0} #price {height:310px} #volume {height:90px}.tools {gap:6px}.segmented button {padding:6px 7px}.brand {font-size:14px}}
   </style>
 </head>
 <body>
@@ -37,6 +37,7 @@
       <div class="identity"><div class="symbol">₿</div><div><div class="brand">BTCUSDT <span class="muted">·</span> Perpetual</div><div class="sub">BYBIT / USDT-M / MARKET DATA</div></div></div>
       <div class="topright"><span id="utcClock">UTC —</span><span class="separator"></span><span class="live"><i class="dot" id="dot"></i><span id="state">Bağlanıyor</span></span></div>
     </header>
+    <nav class="pages" aria-label="Sayfalar"><a class="active" aria-current="page" href="/">Grafik</a><a href="/paper">Sanal işlemler</a></nav>
     <p class="eyebrow" id="priceLabel">Son kapanış · 1 dakikalık mum</p>
     <section class="overview" aria-label="Piyasa özeti">
       <div class="headline"><strong id="last">—</strong><small>USDT</small></div><span id="change" class="badge" hidden></span>
@@ -50,21 +51,14 @@
       <div class="chart" id="chart"><canvas id="price" role="img" aria-label="BTCUSDT mum ve EMA grafiği"></canvas><canvas id="volume" role="img" aria-label="BTC işlem hacmi grafiği"></canvas><div class="tooltip" id="tooltip"></div></div>
       <div class="bottom"><div class="key"><span><i class="ema20"></i>EMA 20</span><span><i class="ema50"></i>EMA 50</span><span>Yeşil yükseliş · kırmızı düşüş</span></div><span id="count">Veriler yükleniyor</span></div>
     </section>
-    <section class="panel paper" aria-label="Sanal işlem özeti">
-      <div class="paperhead"><h2>Sanal işlemler <span class="muted">· EMA 20/50</span></h2><small>SADECE SİMÜLASYON</small></div>
-      <div class="papergrid"><div><span>Sanal bakiye</span><strong id="paperBalance">—</strong></div><div><span>Açık pozisyon</span><strong id="paperPosition">—</strong></div><div><span>Kapanan işlem</span><strong id="paperCount">—</strong></div></div>
-      <p class="paperinfo" id="paperInfo">Strateji yükleniyor…</p>
-      <div class="paperrows"><table><thead><tr><th>Yön</th><th>Giriş · UTC</th><th>Çıkış · UTC</th><th>Giriş</th><th>Çıkış</th><th>Kayma</th><th>Fonlama ±</th><th>Net PnL</th></tr></thead><tbody id="paperTrades"><tr><td colspan="8" class="muted">Henüz işlem yok.</td></tr></tbody></table></div>
-    </section>
     <p class="note">Grafiği sürükleyerek geçmişe gidin, fare tekerleğiyle yakınlaştırın. Anlık fiyat ve oluşan mum saniyede bir güncellenir; kalıcı kayıt yalnızca kapanmış mumları içerir.</p>
   </main>
   <script>
     const $=id=>document.getElementById(id), chart=$('chart'), price=$('price'), volume=$('volume'), tooltip=$('tooltip');
     const number=new Intl.NumberFormat('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
-    const smallMoney=new Intl.NumberFormat('tr-TR',{minimumFractionDigits:4,maximumFractionDigits:4});
     const volumeNumber=new Intl.NumberFormat('tr-TR',{maximumFractionDigits:2});
     const compact=new Intl.NumberFormat('tr-TR',{notation:'compact',maximumFractionDigits:2});
-    let candles=[], closedCandles=[], liveCandle=null, currentPrice=null, priceTs=null, ema20=[], ema50=[], visibleCount=360, endIndex=0, hover=-1, busy=false, liveBusy=false, firstLoad=true, drag=null, confirmedStart=null, paperData=null;
+    let candles=[], closedCandles=[], liveCandle=null, currentPrice=null, priceTs=null, ema20=[], ema50=[], visibleCount=360, endIndex=0, hover=-1, busy=false, liveBusy=false, firstLoad=true, drag=null, confirmedStart=null;
     const color={green:'#23c79a',red:'#ef6579',blue:'#58a9ef',amber:'#eebc73',muted:'#8596ab',line:'#263648',grid:'#1e2c3c'};
     function dimensions(canvas){const box=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2),ctx=canvas.getContext('2d');canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);return {ctx,w:box.width,h:box.height};}
     function stroke(ctx,x1,y1,x2,y2,shade,width=1){ctx.strokeStyle=shade;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
@@ -90,7 +84,6 @@
       }
       function overlay(values,shade){ctx.beginPath();let pen=false;for(let i=start;i<end;i++){const val=values[i];if(val===null){pen=false;continue;}const x=L.left+(i-start+.5)*step;if(!pen)ctx.moveTo(x,y(val));else ctx.lineTo(x,y(val));pen=true;}ctx.strokeStyle=shade;ctx.lineWidth=1.5;ctx.stroke();}
       overlay(ema20,color.blue);overlay(ema50,color.amber);
-      if(paperData?.ready){const marks=[];for(const t of paperData.trades){marks.push([t.entryTime,t.side]);marks.push([t.exitTime,t.side==='LONG'?'EXIT LONG':'EXIT SHORT']);}if(paperData.position)marks.push([paperData.position.entryTime,paperData.position.side]);for(const [time,type] of marks){const idx=rows.findIndex(r=>r.time===time);if(idx<0)continue;const r=rows[idx],x=L.left+(idx+.5)*step,entry=!type.startsWith('EXIT'),up=type.includes('LONG'),yy=entry?(up?y(+r.low)+12:y(+r.high)-12):(up?y(+r.high)-12:y(+r.low)+12);ctx.fillStyle=entry?(up?color.green:color.red):color.amber;ctx.beginPath();ctx.arc(x,Math.max(L.top+5,Math.min(p.h-L.bottom-5,yy)),4,0,Math.PI*2);ctx.fill();}}
       const newest=candles[candles.length-1];if(end===candles.length){const quote=currentPrice===null?+newest.close:+currentPrice,lastY=y(quote),shade=quote>=+newest.open?color.green:color.red;ctx.setLineDash([4,4]);stroke(ctx,L.left,lastY,p.w-L.right,lastY,shade,1);ctx.setLineDash([]);ctx.fillStyle=shade;ctx.fillRect(p.w-L.right,lastY-10,L.right-6,20);ctx.fillStyle='#09121a';ctx.font='bold 11px system-ui';ctx.fillText(number.format(quote),p.w-L.right+7,lastY+4);}
       vc.fillStyle=color.muted;vc.font='10px system-ui';vc.fillText('HACİM · BTC',L.left,14);vc.fillText(compact.format(peak),v.w-L.right+7,14);stroke(vc,L.left,vh-19,v.w-L.right,vh-19,color.line);
       if(hover>=start&&hover<end){const x=L.left+(hover-start+.5)*step;ctx.setLineDash([3,4]);stroke(ctx,x,L.top,x,p.h-L.bottom,'#71849a');stroke(vc,x,2,x,vh-19,'#71849a');ctx.setLineDash([]);}
@@ -119,12 +112,6 @@
     async function refreshLive(){if(liveBusy)return;liveBusy=true;try{const response=await fetch('/api/live',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();currentPrice=data.connected&&data.price!==null&&Number.isFinite(+data.price)?+data.price:null;priceTs=currentPrice===null?null:data.priceTs;liveCandle=data.connected&&data.forming?data.forming:null;
         if(data.confirmedStart&&data.confirmedStart!==confirmedStart){confirmedStart=data.confirmedStart;refresh();}mergeLive();
       }catch(error){currentPrice=null;priceTs=null;liveCandle=null;mergeLive();}finally{liveBusy=false;}}
-    async function refreshPaper(){try{const response=await fetch('/api/paper',{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);paperData=await response.json();if(!paperData.ready){$('paperInfo').textContent='İlk kapanmış mum bekleniyor.';return;}
-      $('paperBalance').textContent=number.format(+paperData.balance)+' USDT';$('paperPosition').textContent=paperData.position?paperData.position.side+' · '+number.format(+paperData.position.entryPrice):'Yok';$('paperCount').textContent=paperData.closedTradeCount;
-      $('paperInfo').textContent='Başlangıç 1.000 USDT · pozisyon 100 USDT · ücret %0,06 / yön · kayma varsayımı %0,02 / yön · fonlama: Bybit gerçekleşmiş oranı × BTC miktarı × önceki 1m mark kapanışı. Fonlama bakiyeye '+(+(paperData.fundingCashflow||0)>=0?'+':'')+smallMoney.format(+paperData.fundingCashflow)+' USDT ('+paperData.fundingCount+' ödeme) etkiledi. '+(paperData.fundingError?'Fonlama servisine erişilemiyor; eksik ödemeler tekrar denenecek.':paperData.fundingLastCheck?'Fonlama son kontrol: '+dateLabel(paperData.fundingLastCheck,true)+'.':'Fonlama kontrolü bekleniyor.')+' Gerçek emir kayması ve anlık mark fiyatı farklı olabilir.';
-      const tbody=$('paperTrades');tbody.replaceChildren();if(!paperData.trades.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=8;td.className='muted';td.textContent='Strateji başladı; henüz kapanan sanal işlem yok.';tr.append(td);tbody.append(tr);}
-      for(const t of paperData.trades){const tr=document.createElement('tr');for(const value of [t.side,dateLabel(t.entryTime,true),dateLabel(t.exitTime,true),number.format(+t.entryPrice),number.format(+t.exitPrice),smallMoney.format(+t.slippage)+' USDT',(+t.funding>=0?'+':'')+smallMoney.format(+t.funding)+' USDT']){const td=document.createElement('td');td.textContent=value;tr.append(td);}const pnl=document.createElement('td');pnl.className=+t.net>=0?'profit':'loss';pnl.textContent=(+t.net>=0?'+':'')+number.format(+t.net)+' USDT';tr.append(pnl);tbody.append(tr);}draw();
-    }catch(error){$('paperInfo').textContent='Sanal işlem verileri yüklenemedi: '+error.message;}}
     function pointerIndex(event){const box=price.getBoundingClientRect(),L=layout(box.width,box.height),{start,rows}=view(),x=event.clientX-box.left;return x<L.left||x>box.width-L.right?-1:Math.max(start,Math.min(start+rows.length-1,start+Math.floor((x-L.left)/L.width*rows.length)));}
     chart.addEventListener('pointermove',e=>{if(!candles.length)return;if(drag){const box=price.getBoundingClientRect(),L=layout(box.width,box.height),shift=Math.round((e.clientX-drag.x)/L.width*visibleCount);endIndex=Math.max(1,Math.min(candles.length,drag.end-shift));hover=-1;tooltip.style.display='none';updateSummary();draw();return;}
       const index=pointerIndex(e);if(index===hover)return;hover=index;if(index<0){tooltip.style.display='none';details(candles.length-1);draw();return;}details(index);draw();const bounds=chart.getBoundingClientRect(),x=e.clientX-bounds.left,y=e.clientY-bounds.top;tooltip.style.display='block';tooltip.style.left=Math.max(4,Math.min(x+17,bounds.width-218))+'px';tooltip.style.top=Math.max(4,Math.min(y-105,bounds.height-170))+'px';});
@@ -134,7 +121,7 @@
     document.querySelectorAll('[data-count]').forEach(button=>button.addEventListener('click',()=>{visibleCount=+button.dataset.count;endIndex=candles.length;hover=-1;tooltip.style.display='none';document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active',b===button));updateSummary();draw();}));
     $('reset').addEventListener('click',()=>{endIndex=candles.length;hover=-1;tooltip.style.display='none';updateSummary();draw();});
     new ResizeObserver(draw).observe(chart);setInterval(()=>{$('utcClock').textContent=new Date().toLocaleTimeString('tr-TR',{timeZone:'UTC',hour:'2-digit',minute:'2-digit',second:'2-digit'})+' UTC';},1000);
-    refresh();refreshLive();refreshPaper();setInterval(refreshLive,1000);setInterval(refresh,30000);setInterval(refreshPaper,30000);
+    refresh();refreshLive();setInterval(refreshLive,1000);setInterval(refresh,30000);
   </script>
 </body>
 </html>

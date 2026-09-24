@@ -14,6 +14,7 @@ import paper_trader
 from livefeed import LiveFeed
 
 PAGE = Path(__file__).with_name("dashboard.html").read_bytes()
+PAPER_PAGE = Path(__file__).with_name("paper.html").read_bytes()
 LOG = logging.getLogger("dashboard")
 FEED = LiveFeed()
 
@@ -69,6 +70,8 @@ class Handler(BaseHTTPRequestHandler):
         route = urlsplit(self.path)
         if route.path == "/":
             return self.reply(200, PAGE, "text/html; charset=utf-8")
+        if route.path in ("/paper", "/paper/"):
+            return self.reply(200, PAPER_PAGE, "text/html; charset=utf-8")
         if route.path == "/health":
             return self.reply(200, b"ok", "text/plain; charset=utf-8")
         if route.path == "/api/live":

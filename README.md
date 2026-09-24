@@ -34,9 +34,11 @@ ORDER BY start_ms DESC LIMIT 10;
 
 The public dashboard displays public market data only; it never exposes database credentials or places trades. Since this same service serves the chart, its domain need not be attached to the PostgreSQL service.
 
+The site has two linked pages: `/` shows the live BTCUSDT chart and `/paper` shows the paper account, open position, modeled costs, and closed trade history. Both are served by the existing collector service and read their data from the same PostgreSQL database. Separating the pages does not reset or duplicate the simulated account.
+
 ## Paper trading
 
-The dashboard also shows a forward-only **simulated** EMA 20/50 crossover strategy. On the first start it seeds its EMA values from existing closed candles and begins with a virtual 1,000 USDT balance; historical candles before that start do not create trades. Every later closed 1-minute candle updates the signal. An upward crossing enters one 100 USDT notional long, a downward crossing enters one 100 USDT notional short, and a reversal closes the old side. Open positions and closed trade records survive service restarts in PostgreSQL. `/api/paper` returns the balance, open position, closed-trade count and latest 30 exits.
+The `/paper` page shows a forward-only **simulated** EMA 20/50 crossover strategy. On the first start it seeds its EMA values from existing closed candles and begins with a virtual 1,000 USDT balance; historical candles before that start do not create trades. Every later closed 1-minute candle updates the signal. An upward crossing enters one 100 USDT notional long, a downward crossing enters one 100 USDT notional short, and a reversal closes the old side. Open positions and closed trade records survive service restarts in PostgreSQL. `/api/paper` returns the balance, open position, closed-trade count and latest 30 exits.
 
 The simulation assumes a 0.06% trading fee per side and **0.02% adverse slippage per fill** relative to the signal candle close. The latter is a configurable modeling assumption, not actual measured slippage: historical OHLCV does not contain order-book depth. Entry and exit prices include the adverse adjustment; the reported slippage is already reflected in gross and net PnL and must not be subtracted twice.
 
